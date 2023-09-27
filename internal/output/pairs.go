@@ -9,20 +9,24 @@ import (
 func DecodePairs(ic *hazelcast.ClientInternal, pairs []hazelcast.Pair, showType bool) []Row {
 	rows := make([]Row, 0, len(pairs))
 	for _, pair := range pairs {
-		row := make(Row, 0, 4)
-		kt, key := ensureTypeValue(ic, pair.Key.(hazelcast.Data))
-		row = append(row, NewKeyColumn(kt, key))
-		if showType {
-			row = append(row, NewKeyTypeColumn(kt))
-		}
-		vt, value := ensureTypeValue(ic, pair.Value.(hazelcast.Data))
-		row = append(row, NewValueColumn(vt, value))
-		if showType {
-			row = append(row, NewValueTypeColumn(vt))
-		}
-		rows = append(rows, row)
+		rows = append(rows, DecodePair(ic, pair, showType))
 	}
 	return rows
+}
+
+func DecodePair(ic *hazelcast.ClientInternal, pair hazelcast.Pair, showType bool) Row {
+	row := make(Row, 0, 4)
+	kt, key := ensureTypeValue(ic, pair.Key.(hazelcast.Data))
+	row = append(row, NewKeyColumn(kt, key))
+	if showType {
+		row = append(row, NewKeyTypeColumn(kt))
+	}
+	vt, value := ensureTypeValue(ic, pair.Value.(hazelcast.Data))
+	row = append(row, NewValueColumn(vt, value))
+	if showType {
+		row = append(row, NewValueTypeColumn(vt))
+	}
+	return row
 }
 
 func ensureTypeValue(ic *hazelcast.ClientInternal, data hazelcast.Data) (int32, any) {
